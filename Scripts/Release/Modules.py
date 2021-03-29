@@ -121,7 +121,7 @@ def collate_release_notes(platform, version):
     working_dir = os.getcwd()
     file_path = os.path.join(working_dir, "ReleaseNotes")
     file_path = os.path.join(file_path, platform)
-    file_path = os.path.join(file_path, "ActiveRelease")
+    file_path = os.path.join(file_path, "Notes")
     file_path = os.path.join(file_path, "*.yml")
 
     file_paths = glob.glob(file_path)

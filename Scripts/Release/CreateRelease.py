@@ -58,14 +58,6 @@ if branch == "develop":
 
     collate_release_notes(platform, project_version)
     commit_release_notes(project_version)
-
-    if platform == "iOS":
-        # Create iOS release
-        create_release_branch(project_version)
-    else:
-        # Create tvOS release
-        print("Create tvOS release")
-
     create_release_branch(platform, version)
 
 elif "release/" in branch:

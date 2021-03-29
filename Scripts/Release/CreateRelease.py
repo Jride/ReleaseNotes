@@ -12,13 +12,13 @@ def get_platform():
 
 def commit_release_notes(version):
     run("git add .")
-    run("git commmit -am \"[ci skip] Creating release for version: %s\"" % (version))
+    run("git commit -am \"[ci skip] Creating release for version: %s\"" % (version))
     run("git push")
 
 def create_release_branch(version):
     run("git checkout -b %s" % (version))
     run("git commit -am \"Creating release branch for version: %s\"" % (version))
-    run("git push")
+    run("git push --set-upstream origin %s" % (version))
 
 ### --- MAIN --- ###
 

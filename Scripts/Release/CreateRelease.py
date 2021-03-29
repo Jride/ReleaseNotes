@@ -19,9 +19,6 @@ def commit_release_notes(version):
 
 clear_terminal()
 
-collate_release_notes("iOS", "11.5")
-sys.exit()
-
 if is_working_copy_clean() is False:
     print("\nWorking copy is not clean\n")
     sys.exit()

@@ -12,7 +12,12 @@ def get_platform():
 
 def commit_release_notes(version):
     run("git add .")
-    run("git commmit -am \"[ci skip] Creating release version: %s\"" % (version))
+    run("git commmit -am \"[ci skip] Creating release for version: %s\"" % (version))
+    run("git push")
+
+def create_release_branch(version):
+    run("git checkout -b %s" % (version))
+    run("git commit -am \"Creating release branch for version: %s\"" % (version))
     run("git push")
 
 ### --- MAIN --- ###
@@ -34,6 +39,7 @@ if branch == "develop":
     if platform == "iOS":
         # Create iOS release
         print("Create iOS release")
+        create_release_branch(project_version)
     else:
         # Create tvOS release
         print("Create tvOS release")

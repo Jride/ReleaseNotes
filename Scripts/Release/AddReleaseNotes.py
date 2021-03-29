@@ -1,5 +1,6 @@
 import os
 import yaml
+import sys
 from spellchecker import SpellChecker
 from pprint import pprint
 from Modules import *
@@ -114,6 +115,10 @@ def get_platform():
 ### --- MAIN --- ###
 
 clear_terminal()
+
+if current_branch_name() == "develop":
+    print("Please create a feature branch first before adding any release notes")
+    sys.exit()
 
 should_continue = True
 

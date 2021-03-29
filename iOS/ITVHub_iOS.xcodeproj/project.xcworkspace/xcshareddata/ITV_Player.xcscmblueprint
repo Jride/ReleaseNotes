@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "29485C86E10FEBC31EDC50A51B5D4D764C775FEC",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "6803738F4E45092262F0EA78DC78A099D52AAA05" : 0,
+    "29485C86E10FEBC31EDC50A51B5D4D764C775FEC" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "4AB84AA1-725B-46B6-968C-6C3AB32D8B50",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "6803738F4E45092262F0EA78DC78A099D52AAA05" : "ios-frameworks\/",
+    "29485C86E10FEBC31EDC50A51B5D4D764C775FEC" : "itvplayer-ios\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "ITV_Player",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "ITV_Player.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/ITV\/itvplayer-ios.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "29485C86E10FEBC31EDC50A51B5D4D764C775FEC"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/ITV\/ios-frameworks.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "6803738F4E45092262F0EA78DC78A099D52AAA05"
+    }
+  ]
+}

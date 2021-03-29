@@ -78,4 +78,4 @@ elif "release_tvos/" in branch:
 
 else:
     print("\n\nYour current branch is is not valid to create a release from.")
-    print("\nPlease checkout develop to create a main release, or checkout an existing release branch to create a new patch release branch.\n\n")
+    print("\nPlease checkout develop to create a new major release, or checkout an existing release branch to create a new patch release branch.\n\n")

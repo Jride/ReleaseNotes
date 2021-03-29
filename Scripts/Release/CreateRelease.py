@@ -58,7 +58,7 @@ if branch == "develop":
 
     collate_release_notes(platform, project_version)
     commit_release_notes(project_version)
-    create_release_branch(platform, version)
+    create_release_branch(platform, project_version)
 
 elif "release/" in branch:
     # Create iOS Patch Relase Branch

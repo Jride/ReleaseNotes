@@ -77,9 +77,14 @@ if branch == "develop":
 
     print("\nRelease branch created for %s version %s. \n\nDon't forget to bump Develop!" % (platform, project_version))
 
-elif "release/" in branch:
-    # Create iOS Patch Relase Branch
-    project_version = project_version_number("iOS")
+elif "release/" in branch or "release_tvos/" in branch:
+    # Create iOS / tvOS Patch Relase Branch
+    if "release/" in branch:
+        platform = "iOS"
+    else:
+        platform = "tvOS"
+
+    project_version = project_version_number(platform)
 
     check_project_files()
     
@@ -97,10 +102,6 @@ elif "release/" in branch:
     create_release_branch(platform, project_version)
 
     print("\nPatch release branch created for %s version %s." % (platform, project_version))
-
-elif "release_tvos/" in branch:
-    # Create tvOS Patch Release Branch
-    project_version = project_version_number("tvOS")
 
 else:
     print("\n\nYour current branch is is not valid to create a release from.")

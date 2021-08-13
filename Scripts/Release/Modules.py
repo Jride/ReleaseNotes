@@ -36,7 +36,8 @@ def is_working_copy_clean():
 
 def get_modified_files():
     modified = []
-    for line in result('git status').readlines():
+    status = result('git status')
+    for line in status.readlines():
         if "modified:" in line:
             modified.append(line)
 

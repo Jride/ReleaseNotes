@@ -30,6 +30,10 @@ def check_project_files():
         }
     ]
 
+    if is_working_copy_clean():
+        print("Please bump the project version and update the Root.plist, then run script again.")
+        sys.exit()
+
     for file in modified_files:
         for req_file in required_files:
             if req_file["name"] in file:
@@ -60,8 +64,6 @@ if branch == "develop":
     platform = get_platform()
     project_version = project_version_number(platform)
 
-    check_project_files()
-
     if does_release_branch_exist(platform, project_version) is True:
         print("Cannot create release branch. The %s release branch for version %s already exists" % (platform, project_version))
         sys.exit()
@@ -78,10 +80,6 @@ if branch == "develop":
 elif "release/" in branch:
     # Create iOS Patch Relase Branch
     project_version = project_version_number("iOS")
-
-    if is_working_copy_clean():
-        print("Please bump the project version and update the Root.plist, then run script again.")
-        sys.exit()
 
     check_project_files()
     

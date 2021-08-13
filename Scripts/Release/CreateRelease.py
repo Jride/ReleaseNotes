@@ -52,10 +52,6 @@ def check_project_files():
 
 clear_terminal()
 
-if is_working_copy_clean() is False:
-    print("\nWorking copy is not clean\n")
-    sys.exit()
-
 branch = current_branch_name()
 
 if branch == "develop":

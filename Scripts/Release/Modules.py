@@ -34,6 +34,15 @@ def github_homepage():
 def is_working_copy_clean():
     return 'working tree clean' in result('git status')
 
+def get_modified_files():
+    modified = []
+    for line in result('git status').readlines():
+        if "modified:" in line:
+            modified.append(line)
+
+    return modified
+
+
 ### Prompts the user to answer a y/n question (returns bool)
 def yes_or_no_input(question):
     result = ""
@@ -104,6 +113,42 @@ def get_master_note(platform, version):
 
     return master_note
 
+def get_root_plist_version():
+    working_dir = os.getcwd()
+    file_path = os.path.join(working_dir, "iOS")
+    file_path = os.path.join(file_path, "Settings")
+    file_path = os.path.join(file_path, "Settings.bundle")
+    file_path = os.path.join(file_path, "Root.plist")
+
+    with open(file_path, 'r') as file:
+        file_lines = file.readlines()
+
+    for index, line in enumerate(file_lines): 
+        if "DefaultValue" in line:
+            version = file_lines[index + 1]
+            version = version.replace("<string>", "")
+            version = version.replace("</string>", "")
+            return version.strip()
+
+    return None
+
+def release_branch_name(platform, version):
+    prefix = "release"
+    if platform == "tvOS":
+        prefix = "release_tvos"
+
+    branch_name = "%s/%s" % (prefix, version)
+
+    return branch_name
+
+def does_release_branch_exist(platform, version):
+    branch_name = release_branch_name(platform, version)
+    git_result = result("git ls-remote --exit-code . origin/%s" % (branch_name))
+    if branch_name in git_result:
+        return True
+    else:
+        return False
+
 def project_version_number(platform):
     working_dir = os.getcwd()
     file_path = os.path.join(working_dir, platform)
@@ -117,7 +162,7 @@ def project_version_number(platform):
         line = line.strip()
         if "MARKETING_VERSION" in line:
             version = line.replace(" ", "").replace(";", "").split("=")
-            return version[-1]
+            return version[-1].strip()
 
     print("Was unable to retrieve the version number from the project file...")
     sys.exit()
@@ -130,10 +175,6 @@ def collate_release_notes(platform, version):
     file_path = os.path.join(file_path, "*.yml")
 
     file_paths = glob.glob(file_path)
-
-    if len(file_paths) == 0:
-        print("No release notes were found!")
-        return False
 
     master_note = get_master_note(platform, version)
 
@@ -150,6 +191,10 @@ def collate_release_notes(platform, version):
         file.close()
 
         if notes is None:
+            continue
+
+        if "release" in notes:
+            print("SKIPPING BECAUSE BELONGS TO EXISTING RELEASE")
             continue
 
         if "feature" in notes:

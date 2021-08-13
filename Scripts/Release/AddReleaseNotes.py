@@ -68,7 +68,7 @@ def get_release_notes_path(platform):
     file_path = os.path.join(file_path, file_name)
     return file_path
 
-def add_release_note(platform, category, note_description):
+def add_release_note(platform, category, note_description, release_version=None):
 
     release_notes = read_release_notes(platform)
 
@@ -83,25 +83,32 @@ def add_release_note(platform, category, note_description):
         else:
             release_notes[category] = [note_description]
 
+    if release_version is not None:
+        release_notes["release"] = release_version
+
     write_release_notes(platform, release_notes)
     clear_terminal()
 
-def create_release_note(platform, category=None):
+def create_release_note(platform, category=None, include_version=False, note_description=None):
     clear_terminal()
 
     if category is None:
         category = select_release_note_category()
 
-    note_description = get_input_for_category(category)
-
+    if note_description is None:
+        note_description = get_input_for_category(category)
+        
     if not note_description or spellcheck(note_description) is False:
-        create_release_note(platform, category)
+        create_release_note(platform, category, release_version)
     else:
         if platform == "Both":
-            add_release_note("iOS", category, note_description)
-            add_release_note("tvOS", category, note_description)
+            create_release_note("iOS", category, include_version, note_description)
+            create_release_note("tvOS", category, include_version, note_description)
         else:
-            add_release_note(platform, category, note_description)
+            release_version = None
+            if include_version is True:
+                release_version = project_version_number(platform)
+            add_release_note(platform, category, note_description, release_version)
 
 def get_platform():
     platforms = [
@@ -116,7 +123,9 @@ def get_platform():
 
 clear_terminal()
 
-if current_branch_name() == "develop":
+branch = current_branch_name()
+
+if branch == "develop":
     print("Please create a feature branch first before adding any release notes")
     sys.exit()
 
@@ -126,9 +135,14 @@ notes_added_for_platform = []
 
 while should_continue:
     platform = get_platform()
-    notes_added_for_platform.append(platform)
-    create_release_note(platform)
 
+    include_version = False
+    if "release_" in branch:
+        include_version = True
+
+    notes_added_for_platform.append(platform)
+
+    create_release_note(platform, category=None, include_version=include_version)
     should_continue = yes_or_no_input("Would you like to add another release note?")
     clear_terminal()
 

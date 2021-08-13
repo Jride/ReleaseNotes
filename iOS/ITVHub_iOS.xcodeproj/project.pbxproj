@@ -11392,7 +11392,7 @@
 					"$(PROJECT_DIR)/Libraries/BARB",
 					"$(PROJECT_DIR)/Libraries/Adobe\\ Campaign",
 				);
-				MARKETING_VERSION = 11.5;
+				MARKETING_VERSION = 11.6;
 				ONLY_ACTIVE_ARCH = YES;
 				"OTHER_CFLAGS[arch=*]" = "-DDEBUG";
 				OTHER_LDFLAGS = (
@@ -11614,7 +11614,7 @@
 					"$(PROJECT_DIR)/Libraries/BARB",
 					"$(PROJECT_DIR)/Libraries/Adobe\\ Campaign",
 				);
-				MARKETING_VERSION = 11.5;
+				MARKETING_VERSION = 11.6;
 				"OTHER_CFLAGS[arch=*]" = "-DNS_BLOCK_ASSERTIONS=1";
 				OTHER_LDFLAGS = (
 					"-lxml2",

@@ -59,7 +59,7 @@ if branch == "develop":
     commit_release_notes(project_version)
     create_release_branch(platform, project_version)
 
-    print("\nRelease branch created for %s version %s. \nDon't forget to bump Develop!" % (platform, project_version))
+    print("\nRelease branch created for %s version %s. \n\nDon't forget to bump Develop!" % (platform, project_version))
 
 elif "release/" in branch:
     # Create iOS Patch Relase Branch

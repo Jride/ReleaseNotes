@@ -30,10 +30,6 @@ def check_project_files():
         }
     ]
 
-    if is_working_copy_clean():
-        print("Please bump the project version and update the Root.plist, then run script again.")
-        sys.exit()
-
     for file in modified_files:
         for req_file in required_files:
             if req_file["name"] in file:
@@ -82,6 +78,10 @@ if branch == "develop":
 elif "release/" in branch:
     # Create iOS Patch Relase Branch
     project_version = project_version_number("iOS")
+
+    if is_working_copy_clean():
+        print("Please bump the project version and update the Root.plist, then run script again.")
+        sys.exit()
 
     check_project_files()
     

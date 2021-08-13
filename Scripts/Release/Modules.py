@@ -25,6 +25,11 @@ def current_branch_name():
     branch = result('git rev-parse --abbrev-ref HEAD --', suppress_err=True)
     return branch.splitlines()[0].strip()
 
+def github_homepage():
+    string = result("git remote get-url origin", suppress_err=True)
+    string = string.replace(".git", "")
+    return string
+
 ### Returns whether the working copy is clean
 def is_working_copy_clean():
     return 'working tree clean' in result('git status')
@@ -128,7 +133,7 @@ def collate_release_notes(platform, version):
 
     if len(file_paths) == 0:
         print("No release notes were found!")
-        sys.exit()
+        return False
 
     master_note = get_master_note(platform, version)
 
@@ -159,3 +164,10 @@ def collate_release_notes(platform, version):
 
     # Save the master note into the releases folder
     write_release_notes(platform, master_note, version)
+
+    return True
+
+def commit_release_notes(version):
+    run("git add .")
+    run("git commit -am \"[ci skip] Adding release notes for version: %s\"" % (version))
+    run("git push")

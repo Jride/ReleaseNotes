@@ -10,11 +10,6 @@ def get_platform():
     clear_terminal()
     return platforms[selected_platform]
 
-def commit_release_notes(version):
-    run("git add .")
-    run("git commit -am \"[ci skip] Creating release for version: %s\"" % (version))
-    run("git push")
-
 def release_branch_name(platform, version):
     prefix = "release"
     if platform == "tvOS":
@@ -24,11 +19,12 @@ def release_branch_name(platform, version):
 
     return branch_name
 
-def create_release_branch(platform, version):
+def create_release_branch(platform, version, should_push=True):
     branch_name = release_branch_name(platform, version)
     run("git checkout -b %s" % (branch_name))
     run("git commit -am \"Creating release branch for version: %s\"" % (version))
-    run("git push --set-upstream origin %s" % (branch_name))
+    if should_push is True:
+        run("git push --set-upstream origin %s" % (branch_name))
 
 def does_release_branch_exist(platform, version):
     branch_name = release_branch_name(platform, version)
@@ -49,6 +45,7 @@ if is_working_copy_clean() is False:
 branch = current_branch_name()
 
 if branch == "develop":
+    # Create Major Relase Branch
     platform = get_platform()
     project_version = project_version_number(platform)
 
@@ -56,11 +53,13 @@ if branch == "develop":
         print("Cannot create release branch. The %s release branch for version %s already exists" % (platform, project_version))
         sys.exit()
 
-    collate_release_notes(platform, project_version)
+    if collate_release_notes(platform, project_version) is False:
+        sys.exit()
+
     commit_release_notes(project_version)
     create_release_branch(platform, project_version)
 
-    print("\nRelease branch created! Don't forget to bump Develop.")
+    print("\nRelease branch created for version %s. Don't forget to bump Develop." % (platform, project_version))
 
 elif "release/" in branch:
     # Create iOS Patch Relase Branch

@@ -56,6 +56,11 @@ branch = current_branch_name()
 
 if branch == "develop":
     # Create Major Relase Branch
+
+    if is_working_copy_clean() is False:
+        print("Working copy is not clean!")
+        sys.exit()
+
     platform = get_platform()
     project_version = project_version_number(platform)
 

@@ -131,8 +131,6 @@ def collate_release_notes(platform, version):
 
     file_paths = glob.glob(file_path)
 
-    print(file_path)
-
     if len(file_paths) == 0:
         print("No release notes were found!")
         return False

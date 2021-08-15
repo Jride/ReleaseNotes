@@ -57,7 +57,7 @@ if is_working_copy_clean() is False:
 branch = current_branch_name()
 
 if branch != "develop":
-    print("\n\nThis script must be run on develop")
+    print("\n\nThis script must only be run on develop")
     sys.exit()
 
 process("iOS")

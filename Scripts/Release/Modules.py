@@ -167,14 +167,18 @@ def project_version_number(platform):
     print("Was unable to retrieve the version number from the project file...")
     sys.exit()
 
-def collate_release_notes(platform, version):
+def get_release_notes(platform):
     working_dir = os.getcwd()
     file_path = os.path.join(working_dir, "ReleaseNotes")
     file_path = os.path.join(file_path, platform)
     file_path = os.path.join(file_path, "Notes")
     file_path = os.path.join(file_path, "*.yml")
 
-    file_paths = glob.glob(file_path)
+    return glob.glob(file_path)
+
+def collate_release_notes(platform, version):
+
+    file_paths = get_release_notes(platform)
 
     master_note = get_master_note(platform, version)
 

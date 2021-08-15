@@ -201,12 +201,7 @@ def collate_release_notes(platform, version):
             print("SKIPPING BECAUSE BELONGS TO EXISTING RELEASE")
             continue
 
-        if "feature" in notes:
-            master_note["feature"].extend(notes["feature"])
-        if "fix" in notes:
-            master_note["fix"].extend(notes["fix"])
-        if "internal" in notes:
-            master_note["internal"].extend(notes["internal"])
+        merge_notes_into_master(notes, master_note)
 
         # Remove the individual releaes notes file
         remove(file_path)
@@ -215,6 +210,25 @@ def collate_release_notes(platform, version):
     write_release_notes(platform, master_note, version)
 
     return True
+
+def merge_notes_into_master(notes, master_note):
+    if "feature" in notes:
+        if "feature" in master_note:
+            master_note["feature"].extend(notes["feature"])
+        else:
+            master_note["feature"] = notes["feature"]
+
+    if "fix" in notes:
+        if "fix" in master_note:
+            master_note["fix"].extend(notes["fix"])
+        else:
+            master_note["fix"] = notes["fix"]
+
+    if "internal" in notes:
+        if "internal" in master_note:
+            master_note["internal"].extend(notes["internal"])
+        else:
+            master_note["internal"] = notes["internal"]
 
 def commit_release_notes(version):
     run("git add .")

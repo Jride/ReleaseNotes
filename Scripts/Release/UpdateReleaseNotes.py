@@ -25,17 +25,17 @@ def process(platform):
         version = notes["release"]
         master_note = get_master_note(platform, version)
 
-        if "feature" in notes:
+        if "feature" in master_note:
             master_note["feature"].extend(notes["feature"])
         else:
             master_note["feature"] = notes["feature"]
 
-        if "fix" in notes:
+        if "fix" in master_note:
             master_note["fix"].extend(notes["fix"])
         else:
             master_note["fix"] = notes["fix"]
 
-        if "internal" in notes:
+        if "internal" in master_note:
             master_note["internal"].extend(notes["internal"])
         else:
             master_note["internal"] = notes["internal"]

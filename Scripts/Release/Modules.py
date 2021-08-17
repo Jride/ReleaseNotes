@@ -257,7 +257,7 @@ def slack_message_section(text):
     }
 
 def slack_text_from_notes_list(notes):
-    text = "• ".join(notes)
+    text = "\n• ".join(notes)
     return "• %s" % text
 
 def slack_message_blocks(master_note):

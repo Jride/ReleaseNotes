@@ -48,6 +48,7 @@ def check_project_files():
         print("Project version and Root.plist version do not match!")
         sys.exit()
 
+
 ### --- MAIN --- ###
 
 clear_terminal()

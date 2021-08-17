@@ -3,6 +3,15 @@ import os
 import sys
 import glob
 import yaml
+import json
+import boto3
+
+from botocore.exceptions import ClientError
+
+s3 = boto3.client('s3')
+s3_bucket = "itv-hub-release-notes"
+s3_content_key = "slack_message_ids"
+aws_access_key = "AKIASOWHPB3JCJXHU5DY"
 
 ### Executes a shell command and prints the output
 def run(command):
@@ -19,6 +28,51 @@ def result(command, suppress_err=False):
 
 def clear_terminal():
     run("clear && printf '\e[3J'")
+
+def get_slack_message_ids(platform):
+
+    key = "%s_%s.json" % (s3_content_key, platform)
+
+    try:
+        response = s3.get_object(
+            Bucket=s3_bucket,
+            Key=key
+        )
+
+        print(response)
+
+        file_content = response['Body'].read().decode('utf-8')
+        
+        return json.loads(file_content)
+
+    except ClientError as ex:
+
+        if ex.response['Error']['Code'] == 'NoSuchKey':
+            print('No object found - returning empty')
+            return dict()
+        else:
+            print("Failed to fetch slack message ids from s3 bucket")
+            print(ex.response)
+            sys.exit()
+        
+
+def update_slack_message_ids(json_object, platform):
+
+    key = "%s_%s.json" % (s3_content_key, platform)
+
+    s3.put_object(
+         Body=json.dumps(json_object),
+         Bucket=s3_bucket,
+         Key=key
+    )
+
+def get_slack_channel(platform):
+    if platform == "iOS":
+        # itv-hub-ios-releases
+        return "C02B8F6R84S"
+    else:
+        # itv-hub-tvos-releases
+        return "C02BLCY13K6"
 
 ### The name of the current git branch
 def current_branch_name():
@@ -176,6 +230,9 @@ def get_release_notes(platform):
 
     return glob.glob(file_path)
 
+def send_release_notes_to_slack(note):
+    print("Send to slack")
+
 def collate_release_notes(platform, version):
 
     file_paths = get_release_notes(platform)
@@ -208,6 +265,8 @@ def collate_release_notes(platform, version):
 
     # Save the master note into the releases folder
     write_release_notes(platform, master_note, version)
+
+    send_release_notes_to_slack(master_note)
 
     return True
 

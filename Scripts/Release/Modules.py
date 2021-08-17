@@ -242,7 +242,7 @@ def slack_message_header(text):
         "text": {
             "type": "plain_text",
             "text": text,
-            "emoji": true
+            "emoji": True
         }
     }
 
@@ -252,7 +252,7 @@ def slack_message_section(text):
         "text": {
             "type": "plain_text",
             "text": text,
-            "emoji": true
+            "emoji": True
         }
     }
 

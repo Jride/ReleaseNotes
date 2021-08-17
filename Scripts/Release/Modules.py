@@ -6,6 +6,8 @@ import yaml
 import json
 import boto3
 
+from slack import WebClient
+from slack.errors import SlackApiError
 from botocore.exceptions import ClientError
 
 s3 = boto3.client('s3')

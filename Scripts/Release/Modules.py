@@ -10,6 +10,8 @@ from slack import WebClient
 from slack.errors import SlackApiError
 from botocore.exceptions import ClientError
 
+slack_client = WebClient(token=os.path.expandvars('$SLACK_BOT_USER_TOKEN'))
+
 s3 = boto3.client('s3')
 s3_bucket = "itv-hub-release-notes"
 s3_content_key = "slack_message_ids"
@@ -234,7 +236,7 @@ def get_release_notes(platform):
 def send_slack_message(platform, master_note):
     release_version = master_note["release"]
     try:
-        response = client.chat_postMessage(
+        response = slack_client.chat_postMessage(
             channel=get_slack_channel(platform),
             text="Added new release notes for version %s" % (release_version)
         )
@@ -245,6 +247,18 @@ def send_slack_message(platform, master_note):
     except SlackApiError as e:
       print(e.response["error"])
       sys.exit()
+
+def update_slack_message(platform, master_note, message_id):
+
+    try:
+        slack_client.chat_update(
+          channel=get_slack_channel(platform),
+          ts=message_id,
+          text="updates from your app again! :tada:"
+        )
+
+    except SlackApiError as e:
+      print(e.response["error"])
 
 def collate_release_notes(platform, version):
 

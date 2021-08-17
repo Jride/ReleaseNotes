@@ -2,14 +2,6 @@ import sys
 import os
 from Modules import *
 
-# import logging
-# logging.basicConfig(level=logging.DEBUG)
-
-from slack import WebClient
-from slack.errors import SlackApiError
-
-client = WebClient(token=os.path.expandvars('$SLACK_BOT_USER_TOKEN'))
-
 def process(platform):
 
     updated_release_notes = {}
@@ -60,18 +52,6 @@ def process(platform):
         return True
     else:
         return False
-
-def update_slack_message(platform, master_note, message_id):
-
-    try:
-        client.chat_update(
-          channel=get_slack_channel(platform),
-          ts=message_id,
-          text="updates from your app again! :tada:"
-        )
-
-    except SlackApiError as e:
-      print(e.response["error"])
 
 ### --- MAIN --- ###
 

@@ -17,18 +17,28 @@ def create_release_branch(platform, version, should_push=True):
     run("git commit -am \"Creating release branch for version: %s\"" % (version))
     run("git push --set-upstream origin %s" % (branch_name))
 
-def check_project_files():
+def check_project_files(platform):
     modified_files = get_modified_files()
-    required_files = [
-        {
-            "name": "ITVHub_iOS.xcodeproj",
-            "exists": False
-        },
-        {
-            "name": "Settings.bundle/Root.plist",
-            "exists": False
-        }
-    ]
+    
+    if platform == "iOS":
+        required_files = [
+            {
+                "name": "ITVHub_iOS.xcodeproj",
+                "exists": False
+            },
+            {
+                "name": "Settings.bundle/Root.plist",
+                "exists": False
+            }
+        ]
+    else:
+        required_files = [
+            {
+                "name": "ITVHub_tvOS.xcodeproj",
+                "exists": False
+            }
+        ]
+    
 
     if is_working_copy_clean():
         print("Please bump the project version and update the Root.plist, then run script again.")
@@ -44,7 +54,7 @@ def check_project_files():
             print("Update %s before running script again" % (req_file["name"]))
             sys.exit()
 
-    if project_version != get_root_plist_version():
+    if platform == "iOS" and project_version != get_root_plist_version():
         print("Project version and Root.plist version do not match!")
         sys.exit()
 
@@ -87,7 +97,7 @@ elif "release/" in branch or "release_tvos/" in branch:
 
     project_version = project_version_number(platform)
 
-    check_project_files()
+    check_project_files(platform)
     
     if len(project_version.split(".")) < 3:
         print("Project version does not contain a patch number (ie 11.5.x)")

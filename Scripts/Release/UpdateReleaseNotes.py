@@ -1,4 +1,5 @@
 import sys
+import os
 from Modules import *
 
 # import logging
@@ -7,7 +8,7 @@ from Modules import *
 from slack import WebClient
 from slack.errors import SlackApiError
 
-client = WebClient(token='xoxb-5185228272-1035430695570-9OidcgySi2tRDHYqhm1qxQRH')
+client = WebClient(token=os.path.expandvars('$SLACK_BOT_USER_TOKEN'))
 
 def process(platform):
 

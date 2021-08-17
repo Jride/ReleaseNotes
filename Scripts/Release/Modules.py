@@ -11,7 +11,6 @@ from botocore.exceptions import ClientError
 s3 = boto3.client('s3')
 s3_bucket = "itv-hub-release-notes"
 s3_content_key = "slack_message_ids"
-aws_access_key = "AKIASOWHPB3JCJXHU5DY"
 
 ### Executes a shell command and prints the output
 def run(command):

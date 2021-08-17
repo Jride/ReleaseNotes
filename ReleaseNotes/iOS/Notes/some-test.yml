@@ -1,5 +1,0 @@
-feature:
-- iOS feature only
-internal:
-- Fixed regression in 11.5 release
-release: '11.5'

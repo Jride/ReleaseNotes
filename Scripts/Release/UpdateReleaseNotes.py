@@ -60,22 +60,6 @@ def process(platform):
         return True
     else:
         return False
-    
-
-def send_slack_message(platform, master_note):
-    release_version = master_note["release"]
-    try:
-        response = client.chat_postMessage(
-            channel=get_slack_channel(platform),
-            text="Added new release notes for version %s" % (release_version)
-        )
-
-        # return the message id
-        return response["ts"]
-
-    except SlackApiError as e:
-      print(e.response["error"])
-      sys.exit()
 
 def update_slack_message(platform, master_note, message_id):
 

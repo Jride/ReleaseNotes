@@ -229,8 +229,20 @@ def get_release_notes(platform):
 
     return glob.glob(file_path)
 
-def send_release_notes_to_slack(note):
-    print("Send to slack")
+def send_slack_message(platform, master_note):
+    release_version = master_note["release"]
+    try:
+        response = client.chat_postMessage(
+            channel=get_slack_channel(platform),
+            text="Added new release notes for version %s" % (release_version)
+        )
+
+        # return the message id
+        return response["ts"]
+
+    except SlackApiError as e:
+      print(e.response["error"])
+      sys.exit()
 
 def collate_release_notes(platform, version):
 
@@ -265,7 +277,7 @@ def collate_release_notes(platform, version):
     # Save the master note into the releases folder
     write_release_notes(platform, master_note, version)
 
-    send_release_notes_to_slack(master_note)
+    send_slack_message(platform, master_note)
 
     return True
 

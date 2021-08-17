@@ -126,7 +126,7 @@ clear_terminal()
 branch = current_branch_name()
 
 if branch == "develop" or "/wip" in branch or "release/" in branch:
-    print("Unsupported branch to create release not in. Please create a feature branch first before continuing")
+    print("\nUnsupported branch to create release note in.\n\nPlease use 'gitfeature' to create a feature branch first before continuing.\n")
     sys.exit()
 
 should_continue = True

@@ -233,12 +233,70 @@ def get_release_notes(platform):
 
     return glob.glob(file_path)
 
+def slack_message_divider():
+    return { "type": "divider" }
+
+def slack_message_header(text):
+    return {
+        "type": "header",
+        "text": {
+            "type": "plain_text",
+            "text": text,
+            "emoji": true
+        }
+    }
+
+def slack_message_section(text):
+    return {
+        "type": "section",
+        "text": {
+            "type": "plain_text",
+            "text": text,
+            "emoji": true
+        }
+    }
+
+def slack_text_from_notes_list(notes):
+    text = "• ".join(notes)
+    return "• %s" % text
+
+def slack_message_blocks(master_note):
+    blocks = [
+        slack_message_header(master_note["release"]),
+        slack_message_divider()
+    ]
+
+    if "feature" in master_note:
+        text = slack_text_from_notes_list(master_note["feature"])
+        blocks.extend([
+            slack_message_header("Features"),
+            slack_message_section(text),
+            slack_message_divider()
+        ])
+
+    if "fix" in master_note:
+        text = slack_text_from_notes_list(master_note["fix"])
+        blocks.extend([
+            slack_message_header("Fixes"),
+            slack_message_section(text),
+            slack_message_divider()
+        ])
+
+    if "internal" in master_note:
+        text = slack_text_from_notes_list(master_note["internal"])
+        blocks.extend([
+            slack_message_header("Internal"),
+            slack_message_section(text),
+            slack_message_divider()
+        ]) 
+
+    return blocks
+
 def send_slack_message(platform, master_note):
-    release_version = master_note["release"]
     try:
         response = slack_client.chat_postMessage(
             channel=get_slack_channel(platform),
-            text="Added new release notes for version %s" % (release_version)
+            blocks=slack_message_blocks(master_note)
         )
 
         # return the message id
@@ -254,7 +312,7 @@ def update_slack_message(platform, master_note, message_id):
         slack_client.chat_update(
           channel=get_slack_channel(platform),
           ts=message_id,
-          text="updates from your app again! :tada:"
+          blocks=slack_message_blocks(master_note)
         )
 
     except SlackApiError as e:

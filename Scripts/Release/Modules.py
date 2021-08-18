@@ -364,11 +364,12 @@ def get_slack_message_ids(platform):
             Key=key
         )
 
-        print(response)
-
         file_content = response['Body'].read().decode('utf-8')
+
+        json_object = json.loads(file_content)
+        print(json_object)
         
-        return json.loads(file_content)
+        return json_object
 
     except ClientError as ex:
 

@@ -8,9 +8,6 @@ def process(platform):
     slack_message_ids = get_slack_message_ids(platform)
     file_paths = get_release_notes(platform)
 
-    if len(file_paths) == 0:
-        return False
-
     for file_path in file_paths:
         notes = None
         file = open(file_path)

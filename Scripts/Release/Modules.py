@@ -277,7 +277,7 @@ def slack_message_section(text):
 
 def slack_message_metadata(master_note):
     now = datetime.now()
-    date_time = now.strftime("%d %B, %Y")
+    date_time = now.strftime("%d %B, %Y @%I:%M %p")
     return {
         "type": "section",
         "fields": [
@@ -287,7 +287,7 @@ def slack_message_metadata(master_note):
             },
             {
                 "type": "mrkdwn",
-                "text": "*Submitted:*\n%s" % (date_time)
+                "text": "*Created:*\n%s" % (date_time)
             }
         ]
     }
@@ -367,7 +367,6 @@ def get_slack_message_ids(platform):
         file_content = response['Body'].read().decode('utf-8')
 
         json_object = json.loads(file_content)
-        print(json_object)
         
         return json_object
 

@@ -1,3 +1,4 @@
+feature: []
 fix:
 - Change the login screen
 - My bug fix number 1
@@ -6,3 +7,5 @@ internal:
 - My sample internal note
 - Sample internal note number 1
 - Sample internal note number 2
+platform: iOS
+release: '11.9'

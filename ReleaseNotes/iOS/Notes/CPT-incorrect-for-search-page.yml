@@ -1,5 +1,0 @@
-fix:
-- Wrong cpt identifier used on search page
-- Regression bug on login screen
-- Unable to subscribe to hub+
-release: '11.8'

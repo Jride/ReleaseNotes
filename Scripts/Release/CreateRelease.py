@@ -54,7 +54,7 @@ def check_project_files(platform):
             print("Update %s before running script again" % (req_file["name"]))
             sys.exit()
 
-    if platform == "iOS" and project_version != get_root_plist_version():
+    if platform == "iOS" and project_version_number(platform) != get_root_plist_version():
         print("Project version and Root.plist version do not match!")
         sys.exit()
 

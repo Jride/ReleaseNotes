@@ -231,7 +231,7 @@ def collate_release_notes(platform, version):
     message_id = send_slack_message(platform, master_note)
     slack_message_ids[version] = message_id
     update_slack_message_ids(slack_message_ids, platform)
-    
+
     return True
 
 def merge_notes_into_master(notes, master_note):
@@ -402,11 +402,20 @@ def update_slack_message_ids(json_object, platform):
 def get_slack_channel(platform):
     if platform == "iOS":
         # itv-hub-ios-releases
-        # return "C02B8F6R84S"
-        return "C02BLCY13K6"
+        return "C02B8F6R84S"
     else:
         # itv-hub-tvos-releases
         return "C02BLCY13K6"
+
+def delete_slack_message(channel_id, message_id):
+    try:
+        slack_client.chat_delete(
+            channel=channel_id,
+            ts=message_id
+        )
+
+    except SlackApiError as e:
+        print("Slack API Error: %s" % e)
 
 def delete_all_slack_messages(platform):
     channel_id = get_slack_channel(platform)
@@ -418,8 +427,8 @@ def delete_all_slack_messages(platform):
 
         conversation_history = result["messages"]
 
-        # Print results
-        print("%s messages found in %s" % (len(conversation_history), channel_id))
+        for message in conversation_history:
+            delete_slack_message(channel_id, message["ts"])
 
     except SlackApiError as e:
-        print("Error creating conversation: %s" % e)
+        print("Slack API Error: %s" % e)

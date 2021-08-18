@@ -299,32 +299,31 @@ def slack_text_from_notes_list(notes):
 def slack_message_blocks(master_note):
     blocks = [
         slack_message_header("Version %s" % master_note["release"]),
-        slack_message_metadata(master_note),
-        slack_message_divider()
+        slack_message_metadata(master_note)
     ]
 
     if "feature" in master_note:
         text = slack_text_from_notes_list(master_note["feature"])
         blocks.extend([
             slack_message_header("Features"),
-            slack_message_section(text),
-            slack_message_divider()
+            slack_message_divider(),
+            slack_message_section(text)
         ])
 
     if "fix" in master_note:
         text = slack_text_from_notes_list(master_note["fix"])
         blocks.extend([
             slack_message_header("Fixes"),
-            slack_message_section(text),
-            slack_message_divider()
+            slack_message_divider(),
+            slack_message_section(text)
         ])
 
     if "internal" in master_note:
         text = slack_text_from_notes_list(master_note["internal"])
         blocks.extend([
             slack_message_header("Internal"),
-            slack_message_section(text),
-            slack_message_divider()
+            slack_message_divider(),
+            slack_message_section(text)
         ]) 
 
     return blocks

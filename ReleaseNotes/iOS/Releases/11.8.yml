@@ -10,3 +10,5 @@ internal:
 - Hello there
 - some test
 - My sample internal note
+platform: iOS
+release: '11.8'

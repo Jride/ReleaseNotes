@@ -6,3 +6,5 @@ internal:
 - My sample internal note
 - Sample internal note number 1
 - Sample internal note number 2
+platform: iOS
+release: '11.9'

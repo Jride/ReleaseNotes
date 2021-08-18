@@ -42,7 +42,7 @@ def process(platform):
 
     for key in updated_release_notes.keys():
         if key in slack_message_ids:
-            update_slack_message(message_ids[key])
+            update_slack_message(slack_message_ids[key])
         else:
             message_id = send_slack_message(platform, updated_release_notes[key])
             slack_message_ids[key] = message_id

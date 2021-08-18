@@ -80,6 +80,7 @@ if branch == "develop":
         sys.exit()
 
     if collate_release_notes(platform, project_version) is False:
+        print("Release has no release notes to process. Something has gone wrong!")
         sys.exit()
 
     commit_release_notes(project_version)

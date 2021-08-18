@@ -99,7 +99,7 @@ def create_release_note(platform, category=None, include_version=False, note_des
         note_description = get_input_for_category(category)
         
     if not note_description or spellcheck(note_description) is False:
-        create_release_note(platform, category, release_version)
+        create_release_note(platform, category, include_version)
     else:
         if platform == "Both":
             create_release_note("iOS", category, include_version, note_description)

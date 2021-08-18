@@ -108,10 +108,7 @@ def get_master_note(platform, version):
 
     master_note = {
         "platform": platform,
-        "release": version,
-        "feature": [],
-        "fix": [],
-        "internal": []
+        "release": version
     }
 
     if does_file_exist(file_path) is False:

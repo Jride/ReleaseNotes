@@ -1,5 +1,0 @@
-feature:
-- Added new feature during regression
-fix:
-- Found bug during VOD playback
-release: '11.9'

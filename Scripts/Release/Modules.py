@@ -191,10 +191,11 @@ def get_release_notes(platform):
 
 def collate_release_notes(platform, version):
 
+    slack_message_ids = get_slack_message_ids(platform)
     file_paths = get_release_notes(platform)
-
     master_note = get_master_note(platform, version)
 
+    should_continue = False
     for file_path in file_paths:
         notes = None
         file = open(file_path)
@@ -219,11 +220,18 @@ def collate_release_notes(platform, version):
         # Remove the individual releaes notes file
         remove(file_path)
 
+        should_continue = True
+
+    if should_continue is False:
+        return False
+
     # Save the master note into the releases folder
     write_release_notes(platform, master_note, version)
 
-    send_slack_message(platform, master_note)
-
+    message_id = send_slack_message(platform, master_note)
+    slack_message_ids[version] = message_id
+    update_slack_message_ids(slack_message_ids, platform)
+    
     return True
 
 def merge_notes_into_master(notes, master_note):

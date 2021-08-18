@@ -108,6 +108,7 @@ elif "release/" in branch or "release_tvos/" in branch:
         sys.exit()
 
     if collate_release_notes(platform, project_version) is False:
+        print("Release has no release notes to process. Something has gone wrong!")
         sys.exit()
 
     create_release_branch(platform, project_version)

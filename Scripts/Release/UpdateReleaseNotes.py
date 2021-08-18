@@ -91,5 +91,5 @@ if did_process_ios is False and did_process_tvos is False:
     sys.exit()
 
 run("git add .")
-run("git commit -am \"[ci skip] Updating release notes.")
+run("git commit -am [ci skip] Updating release notes.")
 run("git push")

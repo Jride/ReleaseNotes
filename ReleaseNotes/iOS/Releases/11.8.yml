@@ -2,10 +2,19 @@ feature:
 - My lovely new feature
 - another fix
 - This is my new feature
+- My lovely new feature
+- another fix
+- This is my new feature
 fix:
 - my fix
 - Adding a new fix
+- my fix
+- Adding a new fix
 internal:
+- Refactored some areas of the player
+- Hello there
+- some test
+- My sample internal note
 - Refactored some areas of the player
 - Hello there
 - some test

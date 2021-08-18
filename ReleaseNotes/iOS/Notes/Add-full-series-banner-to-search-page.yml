@@ -1,5 +1,0 @@
-feature:
-- Updated full series banners on search page
-fix:
-- Image ratio was incorrect for iPhone SE
-- Incorrect padding between image and search label

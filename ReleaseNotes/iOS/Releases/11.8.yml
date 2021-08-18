@@ -2,13 +2,18 @@ feature:
 - My lovely new feature
 - another fix
 - This is my new feature
+- Updated full series banners on search page
 fix:
 - my fix
 - Adding a new fix
+- Incorrect tracking on episodes page when scrolling content
+- Image ratio was incorrect for iPhone SE
+- Incorrect padding between image and search label
 internal:
 - Refactored some areas of the player
 - Hello there
 - some test
 - My sample internal note
+- Added new field in Crocus module for production ID
 platform: iOS
 release: '11.8'

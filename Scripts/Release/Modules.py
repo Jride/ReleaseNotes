@@ -5,6 +5,7 @@ import glob
 import yaml
 import json
 import boto3
+from datetime import datetime
 
 from slack import WebClient
 from slack.errors import SlackApiError
@@ -31,51 +32,6 @@ def result(command, suppress_err=False):
 
 def clear_terminal():
     run("clear && printf '\e[3J'")
-
-def get_slack_message_ids(platform):
-
-    key = "%s_%s.json" % (s3_content_key, platform)
-
-    try:
-        response = s3.get_object(
-            Bucket=s3_bucket,
-            Key=key
-        )
-
-        print(response)
-
-        file_content = response['Body'].read().decode('utf-8')
-        
-        return json.loads(file_content)
-
-    except ClientError as ex:
-
-        if ex.response['Error']['Code'] == 'NoSuchKey':
-            print('No object found - returning empty')
-            return dict()
-        else:
-            print("Failed to fetch slack message ids from s3 bucket")
-            print(ex.response)
-            sys.exit()
-        
-
-def update_slack_message_ids(json_object, platform):
-
-    key = "%s_%s.json" % (s3_content_key, platform)
-
-    s3.put_object(
-         Body=json.dumps(json_object),
-         Bucket=s3_bucket,
-         Key=key
-    )
-
-def get_slack_channel(platform):
-    if platform == "iOS":
-        # itv-hub-ios-releases
-        return "C02B8F6R84S"
-    else:
-        # itv-hub-tvos-releases
-        return "C02BLCY13K6"
 
 ### The name of the current git branch
 def current_branch_name():
@@ -233,91 +189,6 @@ def get_release_notes(platform):
 
     return glob.glob(file_path)
 
-def slack_message_divider():
-    return { "type": "divider" }
-
-def slack_message_header(text):
-    return {
-        "type": "header",
-        "text": {
-            "type": "plain_text",
-            "text": text,
-            "emoji": True
-        }
-    }
-
-def slack_message_section(text):
-    return {
-        "type": "section",
-        "text": {
-            "type": "plain_text",
-            "text": text,
-            "emoji": True
-        }
-    }
-
-def slack_text_from_notes_list(notes):
-    text = "\n• ".join(notes)
-    return "• %s" % text
-
-def slack_message_blocks(master_note):
-    blocks = [
-        slack_message_header(master_note["release"]),
-        slack_message_divider()
-    ]
-
-    if "feature" in master_note:
-        text = slack_text_from_notes_list(master_note["feature"])
-        blocks.extend([
-            slack_message_header("Features"),
-            slack_message_section(text),
-            slack_message_divider()
-        ])
-
-    if "fix" in master_note:
-        text = slack_text_from_notes_list(master_note["fix"])
-        blocks.extend([
-            slack_message_header("Fixes"),
-            slack_message_section(text),
-            slack_message_divider()
-        ])
-
-    if "internal" in master_note:
-        text = slack_text_from_notes_list(master_note["internal"])
-        blocks.extend([
-            slack_message_header("Internal"),
-            slack_message_section(text),
-            slack_message_divider()
-        ]) 
-
-    return blocks
-
-def send_slack_message(platform, master_note):
-    try:
-        response = slack_client.chat_postMessage(
-            channel=get_slack_channel(platform),
-            blocks=slack_message_blocks(master_note)
-        )
-
-        # return the message id
-        return response["ts"]
-
-    except SlackApiError as e:
-      print(e.response["error"])
-      sys.exit()
-
-def update_slack_message(platform, master_note, message_id):
-
-    try:
-        slack_client.chat_update(
-          channel=get_slack_channel(platform),
-          ts=message_id,
-          blocks=slack_message_blocks(master_note)
-        )
-
-    except SlackApiError as e:
-      print(e.response["error"])
-
 def collate_release_notes(platform, version):
 
     file_paths = get_release_notes(platform)
@@ -378,3 +249,153 @@ def commit_release_notes(version):
     run("git add .")
     run("git commit -am \"[ci skip] Adding release notes for version: %s\"" % (version))
     run("git push")
+
+# Slack Related helpers
+
+def slack_message_divider():
+    return { "type": "divider" }
+
+def slack_message_header(text):
+    return {
+        "type": "header",
+        "text": {
+            "type": "plain_text",
+            "text": text,
+            "emoji": True
+        }
+    }
+
+def slack_message_section(text):
+    return {
+        "type": "section",
+        "text": {
+            "type": "plain_text",
+            "text": text,
+            "emoji": True
+        }
+    }
+
+def slack_message_metadata(master_note):
+    now = datetime.now()
+    date_time = now.strftime("%d %B, %Y")
+    return {
+        "type": "section",
+        "fields": [
+            {
+                "type": "mrkdwn",
+                "text": "*Platform:*\n%s" % (master_note["platform"])
+            },
+            {
+                "type": "mrkdwn",
+                "text": "*Submitted:*\n%s" % (date_time)
+            }
+        ]
+    }
+
+def slack_text_from_notes_list(notes):
+    text = "\n• ".join(notes)
+    return "• %s" % text
+
+def slack_message_blocks(master_note):
+    blocks = [
+        slack_message_header("Version %s" % master_note["release"]),
+        slack_message_metadata(master_note),
+        slack_message_divider()
+    ]
+
+    if "feature" in master_note:
+        text = slack_text_from_notes_list(master_note["feature"])
+        blocks.extend([
+            slack_message_header("Features"),
+            slack_message_section(text),
+            slack_message_divider()
+        ])
+
+    if "fix" in master_note:
+        text = slack_text_from_notes_list(master_note["fix"])
+        blocks.extend([
+            slack_message_header("Fixes"),
+            slack_message_section(text),
+            slack_message_divider()
+        ])
+
+    if "internal" in master_note:
+        text = slack_text_from_notes_list(master_note["internal"])
+        blocks.extend([
+            slack_message_header("Internal"),
+            slack_message_section(text),
+            slack_message_divider()
+        ]) 
+
+    return blocks
+
+def send_slack_message(platform, master_note):
+    try:
+        response = slack_client.chat_postMessage(
+            channel=get_slack_channel(platform),
+            blocks=slack_message_blocks(master_note)
+        )
+
+        # return the message id
+        return response["ts"]
+
+    except SlackApiError as e:
+      print(e.response["error"])
+      sys.exit()
+
+def update_slack_message(platform, master_note, message_id):
+
+    try:
+        slack_client.chat_update(
+          channel=get_slack_channel(platform),
+          ts=message_id,
+          blocks=slack_message_blocks(master_note)
+        )
+
+    except SlackApiError as e:
+      print(e.response["error"])
+
+def get_slack_message_ids(platform):
+
+    key = "%s_%s.json" % (s3_content_key, platform)
+
+    try:
+        response = s3.get_object(
+            Bucket=s3_bucket,
+            Key=key
+        )
+
+        print(response)
+
+        file_content = response['Body'].read().decode('utf-8')
+        
+        return json.loads(file_content)
+
+    except ClientError as ex:
+
+        if ex.response['Error']['Code'] == 'NoSuchKey':
+            print('No object found - returning empty')
+            return dict()
+        else:
+            print("Failed to fetch slack message ids from s3 bucket")
+            print(ex.response)
+            sys.exit()
+        
+
+def update_slack_message_ids(json_object, platform):
+
+    key = "%s_%s.json" % (s3_content_key, platform)
+
+    s3.put_object(
+         Body=json.dumps(json_object),
+         Bucket=s3_bucket,
+         Key=key
+    )
+
+def get_slack_channel(platform):
+    if platform == "iOS":
+        # itv-hub-ios-releases
+        return "C02B8F6R84S"
+    else:
+        # itv-hub-tvos-releases
+        return "C02BLCY13K6"

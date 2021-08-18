@@ -394,7 +394,8 @@ def update_slack_message_ids(json_object, platform):
 def get_slack_channel(platform):
     if platform == "iOS":
         # itv-hub-ios-releases
-        return "C02B8F6R84S"
+        # return "C02B8F6R84S"
+        return "C02BLCY13K6"
     else:
         # itv-hub-tvos-releases
         return "C02BLCY13K6"

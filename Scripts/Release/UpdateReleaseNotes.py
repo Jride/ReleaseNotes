@@ -40,12 +40,12 @@ def process(platform):
 
         updated_release_notes[version] = master_note
 
-    for version in updated_release_notes.keys():
-        if version in slack_message_ids:
-            update_slack_message(message_ids[version])
+    for key in updated_release_notes.keys():
+        if key in slack_message_ids:
+            update_slack_message(message_ids[key])
         else:
-            message_id = send_slack_message(platform, updated_release_notes[version])
-            slack_message_ids[version] = message_id
+            message_id = send_slack_message(platform, updated_release_notes[key])
+            slack_message_ids[key] = message_id
 
     if len(updated_release_notes.keys()) > 0:
         update_slack_message_ids(slack_message_ids, platform)

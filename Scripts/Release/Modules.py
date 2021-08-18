@@ -403,7 +403,6 @@ def delete_all_slack_messages(platform):
     channel_id = get_slack_channel(platform)
     conversation_history = []
     try:
-        # Call the conversations.history method using the WebClient
         # conversations.history returns the first 100 messages by default
         # These results are paginated, see: https://api.slack.com/methods/conversations.history$pagination
         result = slack_client.conversations_history(channel=channel_id)
@@ -411,7 +410,7 @@ def delete_all_slack_messages(platform):
         conversation_history = result["messages"]
 
         # Print results
-        print("%s messages found in %s" % (len(conversation_history), id))
+        print("%s messages found in %s" % (len(conversation_history), channel_id))
 
     except SlackApiError as e:
         print("Error creating conversation: %s" % e)

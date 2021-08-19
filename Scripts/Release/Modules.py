@@ -14,7 +14,7 @@ from botocore.exceptions import ClientError
 slack_client = WebClient(token=os.path.expandvars('$SLACK_BOT_USER_TOKEN'))
 
 s3 = boto3.client('s3')
-s3_bucket = "itv-hub-release-notes"
+s3_bucket = "itv-hub"
 s3_content_key = "slack_message_ids"
 
 ### Executes a shell command and prints the output

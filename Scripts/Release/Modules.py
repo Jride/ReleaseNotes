@@ -236,13 +236,14 @@ def commit_release_notes(version):
 def create_aws_credentials_if_needed():
     aws_creds_path = os.path.expanduser("~/.aws/credentials")
 
+    # Creates the directory if needed
     if not os.path.exists(os.path.dirname(aws_creds_path)):
         try:
             os.makedirs(os.path.dirname(aws_creds_path))
         except OSError as exc: # Guard against race condition
             if exc.errno != errno.EEXIST:
                 raise
-    
+
     if does_file_exist(aws_creds_path) is False:
         access_key_id = os.path.expandvars('$AWS_ACCESS_KEY_ID')
         secret_access_key = os.path.expandvars('$AWS_SECRET_ACCESS_KEY')

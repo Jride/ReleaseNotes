@@ -17,7 +17,7 @@ def create_release_branch(platform, version, should_push=True):
     run("git commit -am \"Creating release branch for version: %s\"" % (version))
     run("git push --set-upstream origin %s" % (branch_name))
 
-def check_project_files(platform):
+def check_project_files(platform, project_version):
     modified_files = get_modified_files()
     
     if platform == "iOS":
@@ -54,10 +54,56 @@ def check_project_files(platform):
             print("Update %s before running script again" % (req_file["name"]))
             sys.exit()
 
-    if platform == "iOS" and project_version_number(platform) != get_root_plist_version():
+    if platform == "iOS" and project_version != get_root_plist_version():
         print("Project version and Root.plist version do not match!")
         sys.exit()
 
+def collate_release_notes(platform, version):
+
+    create_aws_credentials_if_needed()
+
+    slack_message_ids = get_slack_message_ids(platform)
+    file_paths = get_release_notes(platform)
+    master_note = get_master_note(platform, version)
+
+    should_continue = False
+    for file_path in file_paths:
+        notes = None
+        file = open(file_path)
+
+        try:
+            notes = yaml.safe_load(file)
+        except yaml.YAMLError as exc:
+            print("Error reading yaml file")
+            print(exc)
+
+        file.close()
+
+        if notes is None:
+            continue
+
+        if "release" in notes:
+            print("SKIPPING BECAUSE BELONGS TO EXISTING RELEASE")
+            continue
+
+        merge_notes_into_master(notes, master_note)
+
+        # Remove the individual releaes notes file
+        remove(file_path)
+
+        should_continue = True
+
+    if should_continue is False:
+        return False
+
+    # Save the master note into the releases folder
+    write_release_notes(platform, master_note, version)
+
+    message_id = send_slack_message(platform, master_note)
+    slack_message_ids[version] = message_id
+    update_slack_message_ids(slack_message_ids, platform)
+
+    return True
 
 ### --- MAIN --- ###
 
@@ -98,7 +144,7 @@ elif "release/" in branch or "release_tvos/" in branch:
 
     project_version = project_version_number(platform)
 
-    check_project_files(platform)
+    check_project_files(platform, project_version)
     
     if len(project_version.split(".")) < 3:
         print("Project version does not contain a patch number (ie 11.5.x)")

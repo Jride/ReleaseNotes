@@ -53,19 +53,6 @@ def process(platform):
     else:
         return False
 
-def create_aws_credentials_if_needed():
-    aws_creds_path = os.path.expanduser("~/.aws/credentials")
-    if does_file_exist(aws_creds_path) is False:
-        access_key_id = os.path.expandvars('$AWS_ACCESS_KEY_ID')
-        secret_access_key = os.path.expandvars('$AWS_SECRET_ACCESS_KEY')
-        file = open(aws_creds_path, "w+")
-        file.writelines('''
-[default]
-aws_access_key_id = %s
-aws_secret_access_key = %s
-        ''' % (access_key_id, secret_access_key))
-        file.close()
-
 ### --- MAIN --- ###
 
 create_aws_credentials_if_needed()

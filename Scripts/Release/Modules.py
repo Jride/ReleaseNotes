@@ -106,22 +106,22 @@ def get_release_notes_path(platform, version):
 def get_master_note(platform, version):
     file_path = get_release_notes_path(platform, version)
 
-    master_note = {
-        "platform": platform,
-        "release": version
-    }
-
     if does_file_exist(file_path) is False:
-        return master_note
+        # If one doesn't exist then return a new master note object
+        return {
+            "platform": platform,
+            "release": version,
+            "deployment_target": project_deployment_target(platform)
+        }
 
     file = open(file_path)
     try:
         master_note = yaml.safe_load(file)
+        return master_note
     except yaml.YAMLError as exc:
         print("Error reading yaml file")
         print(exc)
-
-    return master_note
+        sys.exit()
 
 def get_root_plist_version():
     working_dir = os.getcwd()
@@ -177,6 +177,29 @@ def project_version_number(platform):
     print("Was unable to retrieve the version number from the project file...")
     sys.exit()
 
+def project_deployment_target(platform):
+    working_dir = os.getcwd()
+    file_path = os.path.join(working_dir, platform)
+    file_path = os.path.join(file_path, "ITVHub_" + platform + ".xcodeproj")
+    file_path = os.path.join(file_path, "project.pbxproj")
+
+    with open(file_path, 'r') as file:
+        project_file_lines = file.readlines()
+
+    if platform == "iOS":
+        search_text = "IPHONEOS_DEPLOYMENT_TARGET"
+    else:
+        search_text = "TVOS_DEPLOYMENT_TARGET"
+
+    for line in project_file_lines:
+        line = line.strip()
+        if search_text in line:
+            deployment_target = line.replace(" ", "").replace(";", "").split("=")
+            return deployment_target[-1].strip()
+
+    print("Was unable to retrieve the deployment traget from the project file...")
+    sys.exit()
+
 def get_release_notes(platform):
     working_dir = os.getcwd()
     file_path = os.path.join(working_dir, "ReleaseNotes")
@@ -185,51 +208,6 @@ def get_release_notes(platform):
     file_path = os.path.join(file_path, "*.yml")
 
     return glob.glob(file_path)
-
-def collate_release_notes(platform, version):
-
-    slack_message_ids = get_slack_message_ids(platform)
-    file_paths = get_release_notes(platform)
-    master_note = get_master_note(platform, version)
-
-    should_continue = False
-    for file_path in file_paths:
-        notes = None
-        file = open(file_path)
-
-        try:
-            notes = yaml.safe_load(file)
-        except yaml.YAMLError as exc:
-            print("Error reading yaml file")
-            print(exc)
-
-        file.close()
-
-        if notes is None:
-            continue
-
-        if "release" in notes:
-            print("SKIPPING BECAUSE BELONGS TO EXISTING RELEASE")
-            continue
-
-        merge_notes_into_master(notes, master_note)
-
-        # Remove the individual releaes notes file
-        remove(file_path)
-
-        should_continue = True
-
-    if should_continue is False:
-        return False
-
-    # Save the master note into the releases folder
-    write_release_notes(platform, master_note, version)
-
-    message_id = send_slack_message(platform, master_note)
-    slack_message_ids[version] = message_id
-    update_slack_message_ids(slack_message_ids, platform)
-
-    return True
 
 def merge_notes_into_master(notes, master_note):
     if "feature" in notes:
@@ -254,6 +232,19 @@ def commit_release_notes(version):
     run("git add .")
     run("git commit -am \"[ci skip] Adding release notes for version: %s\"" % (version))
     run("git push")
+
+def create_aws_credentials_if_needed():
+    aws_creds_path = os.path.expanduser("~/.aws/credentials")
+    if does_file_exist(aws_creds_path) is False:
+        access_key_id = os.path.expandvars('$AWS_ACCESS_KEY_ID')
+        secret_access_key = os.path.expandvars('$AWS_SECRET_ACCESS_KEY')
+        file = open(aws_creds_path, "w+")
+        file.writelines('''
+[default]
+aws_access_key_id = %s
+aws_secret_access_key = %s
+        ''' % (access_key_id, secret_access_key))
+        file.close()
 
 # Slack Related helpers
 

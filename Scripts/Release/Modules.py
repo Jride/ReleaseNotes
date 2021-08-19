@@ -274,6 +274,8 @@ def slack_message_section(text):
 def slack_message_metadata(master_note):
     now = datetime.now()
     date_time = now.strftime("%d %B, %Y @%I:%M %p")
+    platform = master_note["platform"]
+    supports = "%s %s and above" % (platform, master_note["deployment_target"])
     return {
         "type": "section",
         "fields": [
@@ -284,6 +286,10 @@ def slack_message_metadata(master_note):
             {
                 "type": "mrkdwn",
                 "text": "*Created:*\n%s" % (date_time)
+            },
+            {
+                "type": "mrkdwn",
+                "text": "*Supports:*\n%s" % (supports)
             }
         ]
     }

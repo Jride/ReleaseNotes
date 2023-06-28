@@ -1,5 +1,11 @@
+import os
 import sys
-from Modules import *
+
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+
+from Shared.Utils import *
 
 def get_platform():
     platforms = [
@@ -13,13 +19,14 @@ def get_platform():
 
 def create_release_branch(platform, version, should_push=True):
     branch_name = release_branch_name(platform, version)
+    run("git pull")
     run("git checkout -b %s" % (branch_name))
     run("git commit -am \"Creating release branch for version: %s\"" % (version))
-    run("git push --set-upstream origin %s" % (branch_name))
+    run("git push --no-verify --set-upstream origin %s" % (branch_name))
 
 def check_project_files(platform, project_version):
     modified_files = get_modified_files()
-    
+
     if platform == "iOS":
         required_files = [
             {
@@ -38,7 +45,7 @@ def check_project_files(platform, project_version):
                 "exists": False
             }
         ]
-    
+
 
     if is_working_copy_clean():
         print("Please bump the project version and update the Root.plist, then run script again.")
@@ -118,6 +125,8 @@ if branch == "develop":
         print("Working copy is not clean!")
         sys.exit()
 
+    run("git pull")
+
     platform = get_platform()
     project_version = project_version_number(platform)
 
@@ -130,7 +139,7 @@ if branch == "develop":
         sys.exit()
 
     commit_release_notes(project_version)
-    
+
     create_release_branch(platform, project_version)
 
     print("\nRelease branch created for %s version %s. \n\nDon't forget to bump Develop!" % (platform, project_version))
@@ -145,7 +154,7 @@ elif "release/" in branch or "release_tvos/" in branch:
     project_version = project_version_number(platform)
 
     check_project_files(platform, project_version)
-    
+
     if len(project_version.split(".")) < 3:
         print("Project version does not contain a patch number (ie 11.5.x)")
         sys.exit()
@@ -155,8 +164,7 @@ elif "release/" in branch or "release_tvos/" in branch:
         sys.exit()
 
     if collate_release_notes(platform, project_version) is False:
-        print("Release has no release notes to process. Something has gone wrong!")
-        sys.exit()
+        print("Patch release has no release notes to process!")
 
     create_release_branch(platform, project_version)
 

@@ -1,6 +1,14 @@
 import sys
 import os
-from Modules import *
+
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+
+from Shared.Utils import *
+
+def checkout_develop():
+    run("git checkout develop && git pull")
 
 def process(platform):
 
@@ -58,14 +66,14 @@ def process(platform):
 create_aws_credentials_if_needed()
 
 if is_working_copy_clean() is False:
-    print("\nWorking copy is not clean\n")
-    sys.exit()
+    print("\nWorking copy is not clean. Cleaning now...\n")
+    run("git clean -fd")
 
 branch = current_branch_name()
 
 if branch != "develop":
-    print("\n\nThis script must only be run on develop")
-    sys.exit()
+    print("\n\nThis script must only be run on develop. Checking out develop now...")
+    checkout_develop()
 
 did_process_ios = process("iOS")
 did_process_tvos = process("tvOS")
@@ -76,4 +84,4 @@ if did_process_ios is False and did_process_tvos is False:
 
 run("git add .")
 run("git commit -am '[ci skip] Updating release notes.'")
-run("git push")
+run("git push --no-verify")

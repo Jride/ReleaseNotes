@@ -1,6 +1,11 @@
 import sys
 import os
-from Modules import *
+
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+sys.path.append(parent)
+
+from Shared.Utils import *
 
 def get_platform():
     platforms = [

@@ -1,5 +1,6 @@
 import os
 import sys
+import webbrowser
 
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
@@ -65,7 +66,12 @@ def check_project_files(platform, project_version):
         print("Project version and Root.plist version do not match!")
         sys.exit()
 
-def collate_release_notes(platform, version):
+def github_homepage():
+    string = result("git remote get-url origin", suppress_err=True)
+    string = string.replace(".git", "")
+    return string
+
+def collate_release_notes(platform, version, target_branch):
 
     create_aws_credentials_if_needed()
 
@@ -110,6 +116,14 @@ def collate_release_notes(platform, version):
     slack_message_ids[version] = message_id
     update_slack_message_ids(slack_message_ids, platform)
 
+    # Create new branch to merge release notes back into develop
+    branch_name = "release-notes-version-%s" % version
+    run("git checkout -b %s" % (branch_name))
+    run("git commit -am \"Merging release notes for version: %s\"" % (version))
+    run("git push --no-verify --set-upstream origin %s" % (branch_name))
+    pr_url = github_homepage() + "/compare/" + target_branch + "..." + branch_name
+    webbrowser.open(pr_url)
+
     return True
 
 ### --- MAIN --- ###
@@ -134,11 +148,9 @@ if branch == "develop":
         print("Cannot create release branch. The %s release branch for version %s already exists" % (platform, project_version))
         sys.exit()
 
-    if collate_release_notes(platform, project_version) is False:
+    if collate_release_notes(platform, project_version, branch) is False:
         print("Release has no release notes to process. Something has gone wrong!")
         sys.exit()
-
-    commit_release_notes(project_version)
 
     create_release_branch(platform, project_version)
 
@@ -163,7 +175,7 @@ elif "release/" in branch or "release_tvos/" in branch:
         print("Cannot create release branch. The %s release branch for version %s already exists" % (platform, project_version))
         sys.exit()
 
-    if collate_release_notes(platform, project_version) is False:
+    if collate_release_notes(platform, project_version, branch) is False:
         print("Patch release has no release notes to process!")
 
     create_release_branch(platform, project_version)

@@ -234,11 +234,6 @@ def merge_notes_into_master(notes, master_note):
         else:
             master_note["internal"] = notes["internal"]
 
-def commit_release_notes(version):
-    run("git add .")
-    run("git commit -am \"Adding release notes for version: %s\"" % (version))
-    run("git push -v --no-verify --set-upstream origin develop")
-
 def create_aws_credentials_if_needed():
     aws_creds_path = os.path.expanduser("~/.aws/credentials")
 

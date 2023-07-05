@@ -1,6 +1,8 @@
 import os
 import sys
 import webbrowser
+import re
+import plistlib
 
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
@@ -24,47 +26,6 @@ def create_release_branch(platform, version, should_push=True):
     run("git checkout -b %s" % (branch_name))
     run("git commit -am \"Creating release branch for version: %s\"" % (version))
     run("git push --no-verify --set-upstream origin %s" % (branch_name))
-
-def check_project_files(platform, project_version):
-    modified_files = get_modified_files()
-
-    if platform == "iOS":
-        required_files = [
-            {
-                "name": "ITVHub_iOS.xcodeproj",
-                "exists": False
-            },
-            {
-                "name": "Settings.bundle/Root.plist",
-                "exists": False
-            }
-        ]
-    else:
-        required_files = [
-            {
-                "name": "ITVHub_tvOS.xcodeproj",
-                "exists": False
-            }
-        ]
-
-
-    if is_working_copy_clean():
-        print("Please bump the project version and update the Root.plist, then run script again.")
-        sys.exit()
-
-    for file in modified_files:
-        for req_file in required_files:
-            if req_file["name"] in file:
-                req_file["exists"] = True
-
-    for req_file in required_files:
-        if req_file["exists"] is False:
-            print("Update %s before running script again" % (req_file["name"]))
-            sys.exit()
-
-    if platform == "iOS" and project_version != get_root_plist_version():
-        print("Project version and Root.plist version do not match!")
-        sys.exit()
 
 def github_homepage():
     string = result("git remote get-url origin", suppress_err=True)
@@ -116,16 +77,113 @@ def collate_release_notes(platform, version, target_branch):
     slack_message_ids[version] = message_id
     update_slack_message_ids(slack_message_ids, platform)
 
-    # Create new branch to merge release notes back into develop
-    branch_name = "release-notes-version-%s" % version
-    run("git checkout -b %s" % (branch_name))
-    run("git add .")
-    run("git commit -am \"Merging release notes for version: %s\"" % (version))
-    run("git push --no-verify --set-upstream origin %s" % (branch_name))
-    pr_url = github_homepage() + "/compare/" + target_branch + "..." + branch_name
-    webbrowser.open(pr_url)
+    if target_branch == "develop":
+        # Create new branch to merge release notes back into develop
+        branch_name = "release-candidate-cut-version%s" % version
+        run("git checkout -b %s" % (branch_name))
+        run("git add .")
+        run("git commit -am \"Merging release notes for version: %s\"" % (version))
+        run("git push --no-verify --set-upstream origin %s" % (branch_name))
+        pr_url = github_homepage() + "/compare/" + target_branch + "..." + branch_name
+        webbrowser.open(pr_url)
 
     return True
+
+def increment_semantic_version(version, level):
+    # Split the version into major, minor, and patch components
+    components = version.split('.')
+
+    major = components[0]
+    minor = components[1]
+    patch = components[2] if len(components) > 2 else ''
+
+    if level == 'major':
+        major = str(int(major) + 1)
+        minor = '0'
+        patch = ''  # Remove patch version
+    elif level == 'minor':
+        minor = str(int(minor) + 1)
+        patch = ''  # Remove patch version
+    elif level == 'patch':
+        if patch:
+            patch = str(int(patch) + 1)
+        else:
+            patch = '1'
+
+    if len(patch) > 0:
+        return f'{major}.{minor}.{patch}'
+    else:
+        return f'{major}.{minor}'
+
+def bump_marketing_version(platform, level):
+
+    working_dir = os.getcwd()
+    file_path = os.path.join(working_dir, platform)
+    file_path = os.path.join(file_path, "ITVHub_" + platform + ".xcodeproj")
+    pbxproj_path = os.path.join(file_path, "project.pbxproj")
+
+    try:
+        # Read the project.pbxproj file
+        with open(pbxproj_path, 'r') as pbxproj_file:
+            pbxproj_content = pbxproj_file.read()
+
+            # Find and replace the MARKETING_VERSION
+            version_regex = r'MARKETING_VERSION = ([0-9.]+);'
+            matches = re.findall(version_regex, pbxproj_content)
+            if len(matches) > 0:
+                current_version = matches[0]
+                print('Current MARKETING_VERSION:', current_version)
+
+                # Increment the version based on the specified level
+                new_version = increment_semantic_version(current_version, level)
+
+                # Replace the MARKETING_VERSION
+                updated_content = re.sub(version_regex, 'MARKETING_VERSION = {};'.format(new_version), pbxproj_content)
+
+                # Write the updated project.pbxproj file
+                with open(pbxproj_path, 'w') as updated_file:
+                    updated_file.write(updated_content)
+
+                print('MARKETING_VERSION bumped to', new_version, 'successfully.')
+            else:
+                print('MARKETING_VERSION not found in project.pbxproj.')
+
+    except FileNotFoundError:
+        print('project.pbxproj file not found.')
+    except Exception as e:
+        print('An error occurred:', str(e))
+
+def bump_ios_settings_bundle_plist(level):
+
+    working_dir = os.getcwd()
+    file_path = os.path.join(working_dir, platform)
+    file_path = os.path.join(file_path, "Settings")
+    file_path = os.path.join(file_path, "Settings.bundle")
+    plist_path = os.path.join(file_path, "Root.plist")
+
+    try:
+        # Load the plist file
+        with open(plist_path, 'rb') as plist_file:
+            plist_data = plistlib.load(plist_file)
+
+            # Update the DefaultValue key
+            if 'PreferenceSpecifiers' in plist_data:
+                preference_specifiers = plist_data['PreferenceSpecifiers']
+                for specifier in preference_specifiers:
+                    if 'DefaultValue' in specifier:
+                        specifier['DefaultValue'] = increment_semantic_version(specifier['DefaultValue'], level)
+
+        # Write the updated plist file
+        with open(plist_path, 'wb') as plist_file:
+            plistlib.dump(plist_data, plist_file)
+
+        print(f'Updated the "DefaultValue" in the plist file: {plist_path}')
+
+    except FileNotFoundError:
+        print(f'Plist file not found: {plist_path}')
+    except Exception as e:
+        print(f'An error occurred while updating the plist file: {str(e)}')
+
 
 ### --- MAIN --- ###
 
@@ -155,29 +213,43 @@ if branch == "develop":
 
     create_release_branch(platform, project_version)
 
-    print("\nRelease branch created for %s version %s. \n\nDon't forget to bump Develop!" % (platform, project_version))
+    print("\nRelease branch created for %s version %s." % (platform, project_version))
+
+    # Bump version for branch that will be merged back into develop
+    branch_name = "release-candidate-cut-version%s" % project_version
+    run("git checkout %s" % (branch_name))
+
+    level = "minor"
+    if platform == "iOS":
+        bump_ios_settings_bundle_plist(level)
+
+    bump_marketing_version(platform, level)
+
+    run("git add .")
+    run("git commit -am \"Bumping marketing version on develop")
+    run("git push --no-verify --set-upstream origin %s" % (branch_name))
 
 elif "release/" in branch or "release_tvos/" in branch:
     # Create iOS / tvOS Patch Relase Branch
+
+    level = "patch"
+
     if "release/" in branch:
         platform = "iOS"
+        bump_ios_settings_bundle_plist(level)
     else:
         platform = "tvOS"
 
+    bump_marketing_version(platform, level)
+
     project_version = project_version_number(platform)
-
-    check_project_files(platform, project_version)
-
-    if len(project_version.split(".")) < 3:
-        print("Project version does not contain a patch number (ie 11.5.x)")
-        sys.exit()
 
     if does_release_branch_exist(platform, project_version) is True:
         print("Cannot create release branch. The %s release branch for version %s already exists" % (platform, project_version))
         sys.exit()
 
     if collate_release_notes(platform, project_version, branch) is False:
-        print("Patch release has no release notes to process!")
+        print("Patch release has no release notes to process, continuing anyways...")
 
     create_release_branch(platform, project_version)
 

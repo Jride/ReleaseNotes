@@ -84,8 +84,6 @@ def collate_release_notes(platform, version, target_branch):
         run("git add .")
         run("git commit -am \"Merging release notes for version: %s\"" % (version))
         run("git push --no-verify --set-upstream origin %s" % (branch_name))
-        pr_url = github_homepage() + "/compare/" + target_branch + "..." + branch_name
-        webbrowser.open(pr_url)
 
     return True
 
@@ -228,6 +226,9 @@ if branch == "develop":
     run("git add .")
     run("git commit -am \"Bumping marketing version on develop")
     run("git push --no-verify --set-upstream origin %s" % (branch_name))
+
+    pr_url = github_homepage() + "/compare/develop..." + branch_name
+    webbrowser.open(pr_url)
 
 elif "release/" in branch or "release_tvos/" in branch:
     # Create iOS / tvOS Patch Relase Branch

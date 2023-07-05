@@ -119,6 +119,7 @@ def collate_release_notes(platform, version, target_branch):
     # Create new branch to merge release notes back into develop
     branch_name = "release-notes-version-%s" % version
     run("git checkout -b %s" % (branch_name))
+    run("git add .")
     run("git commit -am \"Merging release notes for version: %s\"" % (version))
     run("git push --no-verify --set-upstream origin %s" % (branch_name))
     pr_url = github_homepage() + "/compare/" + target_branch + "..." + branch_name

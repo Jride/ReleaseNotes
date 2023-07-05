@@ -79,7 +79,7 @@ def collate_release_notes(platform, version, target_branch):
 
     if target_branch == "develop":
         # Create new branch to merge release notes back into develop
-        branch_name = "release-candidate-cut-version%s" % version
+        branch_name = "release-candidate-cut-version-%s" % version
         run("git checkout -b %s" % (branch_name))
         run("git add .")
         run("git commit -am \"Merging release notes for version: %s\"" % (version))
@@ -214,7 +214,7 @@ if branch == "develop":
     print("\nRelease branch created for %s version %s." % (platform, project_version))
 
     # Bump version for branch that will be merged back into develop
-    branch_name = "release-candidate-cut-version%s" % project_version
+    branch_name = "release-candidate-cut-version-%s" % project_version
     run("git checkout %s" % (branch_name))
 
     level = "minor"

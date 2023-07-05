@@ -224,7 +224,7 @@ if branch == "develop":
     bump_marketing_version(platform, level)
 
     run("git add .")
-    run("git commit -am \"Bumping marketing version on develop")
+    run("git commit -am \"Bumping marketing version on develop\"")
     run("git push --no-verify --set-upstream origin %s" % (branch_name))
 
     pr_url = github_homepage() + "/compare/develop..." + branch_name

@@ -12,8 +12,7 @@ from slack_sdk.errors import SlackApiError
 
 from botocore.exceptions import ClientError
 
-# slack_client = WebClient(token=os.path.expandvars('$SLACK_BOT_USER_TOKEN'))
-slack_client = WebClient(token="xapp-1-A011ATGF71V-5542147494097-9311ce7e086eee253b1e1d74a4d40ffcae7863196421191128d7a1292eb1e4e2")
+slack_client = WebClient(token=os.path.expandvars('$SLACK_BOT_USER_TOKEN'))
 
 s3 = boto3.client('s3')
 s3_bucket = "itv-hub-test"

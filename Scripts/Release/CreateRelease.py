@@ -10,13 +10,20 @@ sys.path.append(parent)
 
 from Shared.Utils import *
 
+arguments = sys.argv
+
 # Passing in any argument will run this script in CI mode
-if len(sys.argv) > 1:
+if len(arguments) > 1:
     CI_MODE = True
+    CI_PLATFORM = arguments[1]
 else:
     CI_MODE = False
 
 def get_platform():
+
+    if CI_MODE:
+        return CI_PLATFORM
+
     platforms = [
         "iOS",
         "tvOS"

@@ -519,3 +519,18 @@ def select_folder_path():
         exit(1)
 
     return selected_folder_path
+
+def send_pull_request_slack_message(blocks):
+    try:
+        response = slack_client.chat_postMessage(
+            # ios-developmet == C056PB12F
+            channel="C05C6EX4ATB",
+            blocks=slack_message_blocks(master_note)
+        )
+
+        # return the message id
+        return response["ts"]
+
+    except SlackApiError as e:
+      print(e.response["error"])
+      sys.exit()

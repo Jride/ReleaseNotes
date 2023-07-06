@@ -10,6 +10,12 @@ sys.path.append(parent)
 
 from Shared.Utils import *
 
+# Passing in any argument will run this script in CI mode
+if len(sys.argv) > 1:
+    CI_MODE = True
+else:
+    CI_MODE = False
+
 def get_platform():
     platforms = [
         "iOS",
@@ -182,8 +188,51 @@ def bump_ios_settings_bundle_plist(level):
     except Exception as e:
         print(f'An error occurred while updating the plist file: {str(e)}')
 
+def post_pr_link_to_slack(platform, version, url):
+
+    blocks = [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "A new release candidate has been cut! Click the \"*Open Pull Request*\" button below to get the release notes and incremented version number changes merged into develop 🙏"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*Platform:* %s\n*Version:* %s" % (platform, version)
+            },
+            "accessory": {
+                "type": "image",
+                "image_url": "https://i.ibb.co/XSX8C1y/git-1.jpg",
+                "alt_text": "Pull Request"
+            }
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Open Pull Request",
+                        "emoji": true
+                    },
+                    "value": "click_me_123",
+                    "url": url
+                }
+            ]
+        }
+    ]
+
+    send_pull_request_slack_message(blocks)
 
 ### --- MAIN --- ###
+
+post_pr_link_to_slack("iOS", "14.16", "http://google.com")
+exit(0)
 
 clear_terminal()
 
@@ -228,7 +277,12 @@ if branch == "develop":
     run("git push --no-verify --set-upstream origin %s" % (branch_name))
 
     pr_url = github_homepage() + "/compare/develop..." + branch_name
-    webbrowser.open(pr_url)
+
+    if CI_MODE:
+        # Post link to open PR
+        post_pr_link_to_slack(platform, project_version, pr_url)
+    else:
+        webbrowser.open(pr_url)
 
 elif "release/" in branch or "release_tvos/" in branch:
     # Create iOS / tvOS Patch Relase Branch

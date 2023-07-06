@@ -16,6 +16,7 @@ arguments = sys.argv
 if len(arguments) > 1:
     CI_MODE = True
     CI_PLATFORM = arguments[1]
+    print(CI_PLATFORM)
 else:
     CI_MODE = False
 
@@ -233,8 +234,6 @@ def post_pr_link_to_slack(platform, version, url):
     send_pull_request_slack_message(blocks)
 
 ### --- MAIN --- ###
-
-clear_terminal()
 
 branch = current_branch_name()
 

@@ -192,47 +192,40 @@ def post_pr_link_to_slack(platform, version, url):
 
     blocks = [
         {
-            "type": "section",
+            "type": "header",
             "text": {
-                "type": "mrkdwn",
-                "text": "A new release candidate has been cut! Click the \"*Open Pull Request*\" button below to get the release notes and incremented version number changes merged into develop 🙏"
+                "type": "plain_text",
+                "text": "Release Candidate Cut",
+                "emoji": True
             }
+        },
+        {
+            "type": "divider"
         },
         {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
                 "text": "*Platform:* %s\n*Version:* %s" % (platform, version)
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "A new release candidate has been cut! *<%s|Open Pull Request>* now to get the release notes and incremented version number changes merged into develop." % url
             },
             "accessory": {
                 "type": "image",
                 "image_url": "https://i.ibb.co/XSX8C1y/git-1.jpg",
                 "alt_text": "Pull Request"
             }
-        },
-        {
-            "type": "actions",
-            "elements": [
-                {
-                    "type": "button",
-                    "text": {
-                        "type": "plain_text",
-                        "text": "Open Pull Request",
-                        "emoji": true
-                    },
-                    "value": "click_me_123",
-                    "url": url
-                }
-            ]
         }
     ]
 
     send_pull_request_slack_message(blocks)
 
 ### --- MAIN --- ###
-
-post_pr_link_to_slack("iOS", "14.16", "http://google.com")
-exit(0)
 
 clear_terminal()
 

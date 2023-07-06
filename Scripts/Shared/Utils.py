@@ -525,7 +525,7 @@ def send_pull_request_slack_message(blocks):
         response = slack_client.chat_postMessage(
             # ios-developmet == C056PB12F
             channel="C05C6EX4ATB",
-            blocks=slack_message_blocks(master_note)
+            blocks=blocks
         )
 
         # return the message id
